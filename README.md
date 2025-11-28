@@ -1,37 +1,178 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Clarity Coach AI - Pronunciation Assessment POC
 
-## Getting Started
+An AI-powered pronunciation coaching application built with Next.js, Azure Speech Services, and PostgreSQL.
 
-First, run the development server:
+## Features
 
-```bash
+- 🎤 **Real-time Pronunciation Assessment**: Record audio and get instant feedback on pronunciation, fluency, and accuracy
+- 📊 **Progress Tracking**: Dashboard with statistics from your practice sessions
+- 🎯 **Guided Practice**: Coaching module with sample sentences for targeted practice
+- 🔊 **Azure Speech Integration**: Powered by Microsoft Azure Cognitive Services
+- 💾 **Database Persistence**: PostgreSQL database for storing results and tracking progress
+
+## Tech Stack
+
+- **Frontend**: Next.js 15, React 19, TailwindCSS
+- **Backend**: Next.js API Routes, PostgreSQL
+- **AI/ML**: Azure Speech Services (Pronunciation Assessment)
+- **Deployment**: Azure Static Web Apps
+
+## Prerequisites
+
+- Node.js 18+ and npm
+- PostgreSQL 15+
+- Azure account with Speech Service resource
+
+## Local Development Setup
+
+### 1. Clone the Repository
+
+\`\`\`bash
+git clone https://github.com/dpbray79/clarity_poc.git
+cd clarity_poc
+npm install
+\`\`\`
+
+### 2. Set Up PostgreSQL Database
+
+\`\`\`bash
+# Create database
+createdb clarity_poc
+
+# Run schema
+psql -d clarity_poc -f sql/schema.sql
+\`\`\`
+
+### 3. Configure Environment Variables
+
+Create a \`.env.local\` file in the root directory:
+
+\`\`\`env
+# Database
+DATABASE_URL=postgresql://localhost:5432/clarity_poc
+
+# Azure Speech Service
+AZURE_SPEECH_KEY=your_azure_speech_key
+AZURE_SPEECH_REGION=your_region  # e.g., eastus2
+
+# Auth (optional)
+NEXTAUTH_SECRET=your_secret
+NEXTAUTH_URL=http://localhost:3000
+\`\`\`
+
+### 4. Run Development Server
+
+\`\`\`bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+\`\`\`
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Azure Deployment
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Option 1: Deploy via Azure Portal
 
-## Learn More
+1. Go to [Azure Portal](https://portal.azure.com)
+2. Create a new **Static Web App** resource
+3. Connect to your GitHub repository
+4. Configure build settings:
+   - **App location**: `/`
+   - **Api location**: (leave empty)
+   - **Output location**: `.next`
+5. Add environment variables in Configuration:
+   - `AZURE_SPEECH_KEY`
+   - `AZURE_SPEECH_REGION`
+   - `DATABASE_URL` (use Azure Database for PostgreSQL)
 
-To learn more about Next.js, take a look at the following resources:
+### Option 2: Deploy via Azure CLI
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+\`\`\`bash
+# Install Azure Static Web Apps CLI
+npm install -g @azure/static-web-apps-cli
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+# Login to Azure
+az login
 
-## Deploy on Vercel
+# Deploy
+swa deploy --app-location ./ --output-location .next
+\`\`\`
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Database Setup for Production
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
-# Build: Thu 23 Oct 2025 17:04:23 ADT
+### Azure Database for PostgreSQL
+
+1. Create an Azure Database for PostgreSQL resource
+2. Configure firewall rules to allow Azure services
+3. Connect and run the schema:
+
+\`\`\`bash
+psql -h your-server.postgres.database.azure.com -U your-username -d clarity_poc -f sql/schema.sql
+\`\`\`
+
+4. Update \`DATABASE_URL\` in Azure Static Web App configuration
+
+## Project Structure
+
+\`\`\`
+clarity_poc/
+├── src/
+│   ├── app/
+│   │   ├── api/
+│   │   │   └── speech/analyze/      # Speech analysis API endpoint
+│   │   ├── assessment/              # Pronunciation assessment page
+│   │   ├── coaching/                # Practice coaching page
+│   │   └── dashboard/               # User dashboard
+│   ├── components/
+│   │   ├── AudioRecorder.tsx        # Audio recording component
+│   │   ├── assessment/              # Assessment UI components
+│   │   └── coaching/                # Coaching UI components
+│   └── lib/
+│       ├── azure-speech.ts          # Azure Speech SDK integration
+│       └── database.ts              # PostgreSQL connection
+├── sql/
+│   └── schema.sql                   # Database schema
+└── public/                          # Static assets
+\`\`\`
+
+## Usage
+
+### 1. Assessment
+- Navigate to `/assessment`
+- Click the microphone button to record
+- Speak clearly and click stop
+- View your pronunciation scores
+
+### 2. Coaching
+- Navigate to `/coaching`
+- Practice with guided sentences
+- Get immediate feedback on each attempt
+
+### 3. Dashboard
+- Navigate to `/dashboard`
+- View your progress statistics
+- Track improvement over time
+
+## Environment Variables
+
+| Variable | Description | Required |
+|----------|-------------|----------|
+| \`DATABASE_URL\` | PostgreSQL connection string | Yes |
+| \`AZURE_SPEECH_KEY\` | Azure Speech Service subscription key | Yes |
+| \`AZURE_SPEECH_REGION\` | Azure region (e.g., eastus2) | Yes |
+| \`NEXTAUTH_SECRET\` | Secret for authentication | No |
+| \`NEXTAUTH_URL\` | Application URL | No |
+
+## Security Notes
+
+- Never commit \`.env.local\` to version control
+- Use Azure Key Vault for production secrets
+- Enable SSL/TLS for database connections in production
+- Implement authentication before public deployment
+
+## License
+
+MIT
+
+## Support
+
+For issues or questions, please open an issue on GitHub.
